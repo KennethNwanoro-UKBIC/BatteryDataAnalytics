@@ -1,4 +1,5 @@
-
+hydralit_components 
+matplotlib
 detect_delimiter
 impedance
 schemdraw
