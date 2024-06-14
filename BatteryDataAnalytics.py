@@ -1,5 +1,5 @@
 import streamlit as st
-import hydralit_components as hc
+#import hydralit_components as hc
 import pandas as pd
 import time
 import numpy as np
