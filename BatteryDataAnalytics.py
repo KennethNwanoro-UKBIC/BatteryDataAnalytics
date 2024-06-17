@@ -4815,7 +4815,7 @@ else:
 """ 
 
 
-This app is in trial stage. Please report any bugs/erros to:
+This app is in trial stage. Please report any bugs/errors to:
 Kenneth.Nwanoro@UKBIC.couk
 """
 
