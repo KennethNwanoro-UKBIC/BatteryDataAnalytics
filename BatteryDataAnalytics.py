@@ -127,8 +127,6 @@ if "Interactive_Plot" not in st.session_state:
 
 with st.expander("Important notes"):
     st.text("About importing data:")
-    st.text(" Ensure that your data files are in the same location as the app file.")
-    st.write("This is a current limitation of the app. But solution is actively being sought")
     st.text("Expand the import data widget. Select the cycler type associated with your data.")
     st.text("The capability for cross cycler data analysis has not been implemented yet... Watch out for this!")
     st.text("Use the Browse files button to select data file(s) and then click Upload button to load data file into the app")
