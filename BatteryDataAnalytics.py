@@ -4778,44 +4778,47 @@ else:
 
 
 """ 
-Things to come!!!
-characters like [], dots in the column names which altair does not recognise
-These characters must be removed or handled specially see: 
-    https://altair-viz.github.io/altair-viz-v4/user_guide/troubleshooting.html
-    under ecoding with special characters 
-1. Fix error with PEC column names -solved
-1. Arrange PEC data such that each variable is constant and consistent with oher cyclers - solved
-1. add another column in other cyclers to have cell IDc 
-1. Using () does not cause issue with Altair - So, all units in the future will be with ()
-1. Rewrite PEC so that all cell ids are in file numbers so that dict can be used to stop file number and
-cell id for easy and fast searching and operation- solved.
-1. Search for files with similar cell ids from PEC data file merge them - solved
-1. Time analysis of the app different sections to see why the slow performance
-1. Convert absolute time data to relative time stamps for merging data files
-1. Extract only required data for analysis to reduce running time - solved
-1. Clean up PEC functions for plotting
-1. include cycle numbers in non cycle number plots
-1. Use Step operation results for further analysis
-1. Analysis of GITT and HPPC - Check wether we can use Ferran's PyBaMM GITT
-1. Capability to import generic files and be able to plot column data and do some analysis with it   
-2. Extract more details from data - DVA/ICA steps, DCIR steps, 
-2. Add step data in tables and perform further analysis with it
-4. ECM for fitting EIS data -Add more prebuilt ECM models
-add more help in the EIS fitting widgets - plot the bode plots 
-of fitted ECM m
-5. Make Nyquist plot to be orthonormal scaled
-6. Upload file from url
+#Things to come!!!
+#characters like [], dots in the column names which altair does not recognise
+#These characters must be removed or handled specially see: 
+    #https://altair-viz.github.io/altair-viz-v4/user_guide/troubleshooting.html
+    #under ecoding with special characters 
+#1. Fix error with PEC column names -solved
+#1. Arrange PEC data such that each variable is constant and consistent with oher cyclers - solved
+#1. add another column in other cyclers to have cell IDc 
+#1. Using () does not cause issue with Altair - So, all units in the future will be with ()
+#1. Rewrite PEC so that all cell ids are in file numbers so that dict can be used to stop file number and
+#cell id for easy and fast searching and operation- solved.
+#1. Search for files with similar cell ids from PEC data file merge them - solved
+#1. Time analysis of the app different sections to see why the slow performance
+#1. Convert absolute time data to relative time stamps for merging data files
+#1. Extract only required data for analysis to reduce running time - solved
+#1. Clean up PEC functions for plotting
+#1. include cycle numbers in non cycle number plots
+#1. Use Step operation results for further analysis
+#1. Analysis of GITT and HPPC - Check wether we can use Ferran's PyBaMM GITT
+#1. Capability to import generic files and be able to plot column data and do some analysis with it   
+#2. Extract more details from data - DVA/ICA steps, DCIR steps, 
+#2. Add step data in tables and perform further analysis with it
+#4. ECM for fitting EIS data -Add more prebuilt ECM models
+#add more help in the EIS fitting widgets - plot the bode plots 
+#of fitted ECM m
+#5. Make Nyquist plot to be orthonormal scaled
+#6. Upload file from url
 
 
-Current fixes
-Bugs associated with selcting and analysis files has been fixed
-Make altair plot have correct axis limits, 
-Slippages
-DVA and ICA added
+#Current fixes
+#Bugs associated with selcting and analysis files has been fixed
+#Make altair plot have correct axis limits, 
+#Slippages
+#DVA and ICA added
 
-Rememeber to clear cache whenever you load new data files
+#Rememeber to clear cache whenever you load new data files
 
-Allow multiple-variable plots within the Full test plot 
+#Allow multiple-variable plots within the Full test plot 
+
+This app is in trial stage. Please report any bugs/erros to:
+Kenneth.Nwanoro@UKBIC.couk
 """
 
 
