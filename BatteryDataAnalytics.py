@@ -4774,10 +4774,6 @@ else:
 #crash took 27 s. So, the app needs to be optimised with respect to the functions
 
 
-
-
-
-""" 
 #Things to come!!!
 #characters like [], dots in the column names which altair does not recognise
 #These characters must be removed or handled specially see: 
@@ -4816,6 +4812,10 @@ else:
 #Rememeber to clear cache whenever you load new data files
 
 #Allow multiple-variable plots within the Full test plot 
+
+
+""" 
+
 
 This app is in trial stage. Please report any bugs/erros to:
 Kenneth.Nwanoro@UKBIC.couk
