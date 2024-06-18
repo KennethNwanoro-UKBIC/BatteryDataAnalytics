@@ -3076,17 +3076,14 @@ else:
 
 
 
-
-
-
 # Display dataframe
 if st.session_state.TestData == []:
     pass
 elif st.session_state.Cycler_Name == "Other data file": 
     st.write(st.session_state.TestData[0])
 else:
-    st.write(st.session_state.TestData[0].head(20))
-    #st.write(st.session_state.TestData[0])
+    #st.write(st.session_state.TestData[0].head(20))
+    st.write(st.session_state.TestData[0])
     num_data = len(st.session_state.TestData)
     steps =  st.session_state.TestData[0]["Step"]
     counts = st.session_state.TestData[0]["Cycle"]
@@ -3179,12 +3176,6 @@ else:
         #findout the most effective how to now select the steps and counts with higher numbers
         
 
-       
-    
-
-
-      
-    
 # Full data plots   
 
 if  st.session_state.TestData == []:
@@ -4815,7 +4806,7 @@ else:
 """ 
 
 
-This app is in trial stage. Please report any bugs/errors to:
+This app is in a trial stage. Please report any bugs/errors to:
 Kenneth.Nwanoro@UKBIC.couk
 """
 
