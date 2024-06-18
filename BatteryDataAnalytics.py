@@ -3082,8 +3082,8 @@ if st.session_state.TestData == []:
 elif st.session_state.Cycler_Name == "Other data file": 
     st.write(st.session_state.TestData[0])
 else:
-    #st.write(st.session_state.TestData[0].head(20))
-    st.write(st.session_state.TestData[0])
+    st.write(st.session_state.TestData[0].head(20))
+    #st.write(st.session_state.TestData[0])
     num_data = len(st.session_state.TestData)
     steps =  st.session_state.TestData[0]["Step"]
     counts = st.session_state.TestData[0]["Cycle"]
