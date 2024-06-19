@@ -505,6 +505,12 @@ def plot(plotdata):
     
      # Still need to allow user to change axis, title, legends, grid and using cmap for color
      #with st.expander("Full test time plots"):
+      len_plotdata = len(plotdata)
+      if len_plotdata >10:
+          st.session_state.Allow_legend = "No"
+          # Need to use test file name or number for colorbar
+     
+    
       ylabel = st.session_state.Current_plot_full_test_ylabel 
       xlabel = st.session_state.Current_plot_full_test_xlabel 
       tit = st.session_state.Current_plot_full_test_legend 
@@ -2426,6 +2432,7 @@ def Import_Data(file,cycler,merge_data):
                     col_names = list(col_names)  
                     num_cell = col_names[-1].split(".")
                     #st.write(num_cell[1])
+                    
                    
                     
                     if len(num_cell)>1:
@@ -2458,13 +2465,14 @@ def Import_Data(file,cycler,merge_data):
                            File_cell_IDs.append(cell_ids)
                            FileName.append(ifile.name)
                            file_num = file_num+1  # Herefile_num is no longer the actual file number but count of unique cell id and data in FileData
-                          
+                           
                            
                         else:
                              old_data_file_num = Cell_id_file_num[cellid]
                              old_data =  FileData[old_data_file_num]
                              old_test_num = old_data["Test"].iloc[0]
                              new_test_num = cell0["Test"].iloc[0]
+                             
                              
                              if new_test_num>old_test_num: #append new file to old file
                                 last_old_test_time = old_data['Total Time (Seconds)'].iloc[-1]
