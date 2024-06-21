@@ -563,10 +563,10 @@ def stack_plot(variables):
         variable_type = "Secondary"
         linestyle = st.session_state.linestyle
         temp_plot = full_pec_test_data_plot(plot_type,variable_type)
-        temp_dim = temp_plot.shape
-        temp_dim = temp_dim[1]
+        temp_dim = len(temp_plot)
         
-        #st.write(temp_plot)
+        
+        
         
         fig,ax = plt.subplots()
     
@@ -585,12 +585,17 @@ def stack_plot(variables):
     
         
         
-        for ii in range(temp_dim-1):
+        for ii in range(temp_dim):
+            
+            temp_data = temp_plot[ii]
+            temp_data_dim = temp_data.shape
+            temp_data_dim = temp_data_dim[1]
             
             
-            axes[ii].plot(temp_plot[:,0],temp_plot[:,ii+1],linestyle = linestyle,color = colors[ii])
+            for it in range(temp_data_dim-1):
+                axes[it].plot(temp_data[:,0],temp_data[:,it+1],linestyle = linestyle,color = colors[it])
             
-            axes[ii].set_ylabel(variables[ii], color = colors[ii])
+                axes[it].set_ylabel(variables[it], color = colors[it])
             
             
             
@@ -600,15 +605,6 @@ def stack_plot(variables):
         ax.set_xlabel("Time")
         st.pyplot(fig)
         
-
-
-
-
-
-
-
-
-
 
 
 
@@ -645,7 +641,7 @@ def plot_altair(plotdata,ylim,xlim):
                   #y=cols[1],
                   color ="Cell Id",
                   tooltip=['Cell Id',cols[0],cols[1]]
-                   ).properties(width =900, height = 600).interactive()
+                   ).properties(width =1350, height = 600).interactive()
        else:
            
             c = alt.Chart(plotdata).mark_line().encode(
@@ -656,7 +652,7 @@ def plot_altair(plotdata,ylim,xlim):
                alt.X(cols[0]).scale(domain = (xlim[0],xlim[1])), # Use limit values here prefered
                 color=cols[2], # originally Cell Id better to change to column number so that the third column can be any variable
                 tooltip=[cols[2],cols[0],cols[1]]
-                     ).properties(width =900, height = 600).interactive()
+                     ).properties(width = 1350, height = 600).interactive()
                
             
        st.write(c)
@@ -871,9 +867,12 @@ def full_pec_test_data_plot(plot_type,variable_type):
     plotData =  []
 
     col_name =  plot_type
+    
     if len(col_name) == 1:
         col_name = col_name[0]
+      
     #st.write(col_name)
+    
     try:
          for  active_id in st.session_state.Active_CellIds:
                 #st.write(count,"  is:", active_id)
@@ -882,6 +881,7 @@ def full_pec_test_data_plot(plot_type,variable_type):
                                #st.write(st.session_state.Active_CellIds)
                                file_num = st.session_state.Cell_ids_and_file_nums[active_id]
                                item =  st.session_state.TestData[file_num]
+                               
                 #for col_name in list(item.columns.values):    
                     
                    #if plot_type in col_name:
@@ -894,19 +894,13 @@ def full_pec_test_data_plot(plot_type,variable_type):
                                time_value = item.loc[item[cellid_temp]==active_id,time_col]
                                full_id = item.loc[item[cellid_temp]==active_id,cellid_temp]
                                
-                               #st.write(test_value)
-                               #st.write(test_value.iloc[:,0].min())
-                               
-                               #min_data = test_value.iloc[:,0].min()
-                               #max_data = test_value.iloc[:,0].max()
-                               
-                               #st.write(min_data)
-                               #st.write(max_data)
+                
                                
 
                                if len (test_value)>0: # only valid entries have data length greater than 0
                                      #st.write(active_id)
                                      plot_val = np.column_stack((time_value,test_value))
+                                     
                                     
                                                                          
                                      #st.write(plot_val)
@@ -914,18 +908,22 @@ def full_pec_test_data_plot(plot_type,variable_type):
                                      
                                     #temp_alt_a = np.column_stack((time_value,test_value,full_id))
                                      #st.write("Here")
-                                     temp_alt = pd.DataFrame({"Total Time (s)": time_value,  # Some issues here becuase test_value is not a list- Need to sort this out
+                                     if len(plot_type) == 1:
+                                        
+                                        
+                                         temp_alt = pd.DataFrame({"Total Time (s)": time_value,  # Some issues here becuase test_value is not a list- Need to sort this out
                                                              ylabel: test_value,
                                                              "Cell Id":full_id,
                                                              })
 
-                                     alt_data = pd.concat([alt_data, temp_alt], axis = 0)  # pandas version 2.0 and above deprecated append() function
+                                         alt_data = pd.concat([alt_data, temp_alt], axis = 0)  # pandas version 2.0 and above deprecated append() function
                                      
-                                     val = float(test_value.max())
+                                         val = float(test_value.max())
                                      
-                                     plotData.append([active_id, val])
+                                         plotData.append([active_id, val])
                                      #stor_cell_id.append(active_id)
                                      plotdata.append(plot_val)
+                                    
                              
                                      ylim1.append(test_value.min())
                                      ylim2.append(test_value.max())
@@ -947,7 +945,7 @@ def full_pec_test_data_plot(plot_type,variable_type):
 
     xlabel = "RunTime (seconds)"  
     #st.write(ylim1)
-    try:
+    if len(plot_type) == 1:
        ylim1 = np.min(ylim1)
        ylim2 = np.max(ylim2)
        ylim1 = ylim1 - (ylim1 *0.02)
@@ -963,11 +961,14 @@ def full_pec_test_data_plot(plot_type,variable_type):
        return_data = pd.DataFrame(plotData, columns = ["Cell Id",ylabel])
        return_data.index +=1   # Start numbering index from 1
        return_data.index.rename('Number', inplace=True)
-       
-    except:
+       #st.write("Here")
+      
+    else:
         xlim = []
         ylim = []
-        return_data = plot_val
+        #return_data = plot_val
+        return_data = plotdata
+      
     
 
 
@@ -4419,6 +4420,9 @@ else:
                if "Capacity" in plot_type_yvalue:
                    st.write(append+plot_type_yvalue+ " Table")
                    st.write(cyc_plot_val)
+                   #st.write(capacity_num_cyc)
+                   
+                   
                if "Slippage" in plot_type_yvalue:
                    st.write(plot_type_yvalue+ " Table")
                    st.write(alt_slip_plot)
@@ -4810,6 +4814,10 @@ else:
 
 #Allow multiple-variable plots within the Full test plot 
 
+# To come:
+    # Make the capacity number of cycles table to be actually number of cycles
+    # A button to export some user selected variables
+    #
 
 """ 
 
@@ -4822,7 +4830,7 @@ Kenneth.Nwanoro@UKBIC.couk
 #st.image("Discharge_and_Charge_Process_of_a_Conventional_Lithium_Ion_Battery_Cell.gif")   
 #st.image("How_a_Lithium_Ion_Battery_Actually_Works_Photorealistic_16_Month_Project.gif", width =800)
 
-st.image("Image_play.gif", width = 850)
+st.image("Image_play.gif", width = 1180)
 
 # Edit gif images using the link below
 #https://ezgif.com/effects/ezgif-3-440923394d.gif
