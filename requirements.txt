@@ -1,4 +1,5 @@
 hydralit_components
+numpy == 1.24.3
 detect_delimiter
 impedance
 schemdraw
