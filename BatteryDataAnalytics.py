@@ -120,10 +120,20 @@ if "glob_Ylim" not in st.session_state:
      
 if "Interactive_Plot" not in st.session_state:  
     st.session_state.Interactive_Plot = False
+    
+if "User_Download_Data" not in st.session_state:
+   st.session_state.User_Download_Data = None
 
+if "RealTime" not in st.session_state:
+    st.session_state.RealTime = False
   
      
 
+""" 
+This app is in a trial stage.
+Please report any bugs/errors/comments to:
+Kenneth.Nwanoro@UKBIC.co.uk
+"""
 
 with st.expander("Important notes"):
     st.text("About importing data:")
@@ -344,8 +354,8 @@ def formation_CE(counts,steps):
         if max_step_num > max_cyc_num:
             if st.session_state.Cycler_Name == "PEC":
               
-                charge_cap =     full_pec_test_data_plot("Charge Capacity (Ah)","Secondary variable") 
-                discharge_cap =  full_pec_test_data_plot("Discharge Capacity (Ah)","Secondary variable")
+                charge_cap =     full_pec_test_data_plot(["Charge Capacity (Ah)"],"Secondary variable") 
+                discharge_cap =  full_pec_test_data_plot(["Discharge Capacity (Ah)"],"Secondary variable")
                 
             else:
                 charge_cap = full_test_data_plot("Charge Capacity (Ah)","Secondary variable") 
@@ -354,8 +364,8 @@ def formation_CE(counts,steps):
             
             
             if st.session_state.Cycler_Name == "PEC":
-                charge_cap    =     full_pec_test_data_plot("Charge Capacity (Ah)","Secondary variable") 
-                discharge_cap =  full_pec_test_data_plot("Discharge Capacity (Ah)","Secondary variable")
+                charge_cap    =     full_pec_test_data_plot(["Charge Capacity (Ah)"],"Secondary variable") 
+                discharge_cap =  full_pec_test_data_plot(["Discharge Capacity (Ah)"],"Secondary variable")
                 """ The capacities displayed here are the maximum charge and discharge capacity values.  
                  The Coulombic efficiency is calculated using these values.
                 If cycling Coulombic efficiency plot is required, select the "Cycling Coulombic efficiency" option under "Cycle Data Analysis and Plots" block. """
@@ -369,10 +379,13 @@ def formation_CE(counts,steps):
                 charge_cap = full_cycle_data_plot("TestTime","Capacity (Ah)","C","Secondary variable", counts) 
                 discharge_cap =  full_cycle_data_plot("TestTime","Capacity (Ah)","D","Secondary variable",counts)
         
-        st.write("Charge Capacity Table:")
-        st.write(charge_cap)
-        st.write("Discharge Capacity Table:")
-        st.write(discharge_cap)
+        col1,col2 = st.columns([1,1])
+        with col1:
+           st.write("Charge Capacity Table:")
+           st.write(charge_cap)
+        with col2:
+           st.write("Discharge Capacity Table:")
+           st.write(discharge_cap)
           
                 
                 
@@ -452,7 +465,7 @@ def formation_CE(counts,steps):
         plot_data = np.column_stack((curr_ids,num,CE))
         plot_data = pd.DataFrame(plot_data, columns = ["Cell Id","Number","Coulombic Efficiency"])
         user_data.index.rename('Number', inplace=True)
-        source = pd.DataFrame({"Number": num, "Coulombic Efficiency": CE,"Cell Id":curr_ids})
+        source = pd.DataFrame({"Number": num, "Coulombic Efficiency (%)": CE,"Cell Id":curr_ids})
         meanCE= np.mean(CE)
         std = np.std(CE)
         var = np.var(CE)
@@ -463,14 +476,27 @@ def formation_CE(counts,steps):
 
         
         c = alt.Chart(source).mark_circle(size=120).encode(
-              alt.Y("Coulombic Efficiency").scale(zero=False),
+              alt.Y("Coulombic Efficiency (%)").scale(zero=False),
               alt.X("Number").scale(zero=False),
               #x="Number",             
               color="Cell Id",
-              tooltip=['Cell Id',"Coulombic Efficiency"]
-                ).properties(width = 800, height = 300).interactive()
+              tooltip=['Cell Id',"Coulombic Efficiency (%)"]
+                ).properties(width = 1300, height = 500).interactive()
 
         st.write(c)
+        
+        
+        b = alt.Chart(source).mark_bar(size=50).encode(
+              alt.Y("Coulombic Efficiency (%)").scale(zero=False),
+              alt.X("Number").scale(zero=False),
+              #x="Number",             
+              color="Cell Id",
+              tooltip=['Cell Id',"Coulombic Efficiency (%)"]
+                ).properties(width = 1300, height = 500).interactive()
+        
+        st.write(b)
+        
+        
         if max_step_num < max_cyc_num:
             fig,ax = plt.subplots(1,1)
             ax.scatter(num,CE)
@@ -501,7 +527,7 @@ def formation_CE(counts,steps):
     
 #@st.cache_data  
 def plot(plotdata):
-         #,
+      
     
      # Still need to allow user to change axis, title, legends, grid and using cmap for color
      #with st.expander("Full test time plots"):
@@ -510,7 +536,7 @@ def plot(plotdata):
           st.session_state.Allow_legend = "No"
           # Need to use test file name or number for colorbar
      
-    
+     
       ylabel = st.session_state.Current_plot_full_test_ylabel 
       xlabel = st.session_state.Current_plot_full_test_xlabel 
       tit = st.session_state.Current_plot_full_test_legend 
@@ -551,12 +577,29 @@ def plot(plotdata):
          ax.legend(prop={'size': 5})
       ax.grid()
       st.pyplot(fig)
+
+
       
+      csv = st.session_state.User_Download_Data 
+      #st.write(csv)
+      csv = csv.to_csv(index=False).encode('utf-8')
+      
+      
+      
+      
+      col2,col3 = st.columns([2.6,1])
+      with col3:
+         st.download_button(
+               "Press to download plot data as a csv file",
+                csv,
+               "BatDatAnayticsFile.csv",
+                key = "main_plots_download"
+           )      
 
 
 
 
-        
+
 
 
 def stack_plot(variables):
@@ -644,19 +687,33 @@ def plot_altair(plotdata,ylim,xlim):
                    ).properties(width =1350, height = 600).interactive()
        else:
            
-            c = alt.Chart(plotdata).mark_line().encode(
+           if st.session_state.RealTime == False:
+               c = alt.Chart(plotdata).mark_line().encode(
              #alt.Y(cols[1]).scale(zero=False),
             # alt.Y(cols[1]).scale(domain = (0,0.04)), # Use limit values here prefered
                # x=cols[0],
                alt.Y(cols[1]).scale(domain = (ylim[0],ylim[1])), # Use limit values here prefered
                alt.X(cols[0]).scale(domain = (xlim[0],xlim[1])), # Use limit values here prefered
+               
                 color=cols[2], # originally Cell Id better to change to column number so that the third column can be any variable
                 tooltip=[cols[2],cols[0],cols[1]]
                      ).properties(width = 1350, height = 600).interactive()
+           else: 
+               
+                 
+                 c = alt.Chart(plotdata).mark_line().encode(
+                      alt.Y(cols[1]), # Use limit values here prefered
+                      alt.X(cols[0]), # Use limit values here prefered
+                 
+                      color=cols[2], # originally Cell Id better to change to column number so that the third column can be any variable
+                      tooltip=[cols[2],cols[0],cols[1]]
+                       ).properties(width = 1350, height = 600).interactive()
+               
                
             
        st.write(c)
-      
+       
+  
        
 def DVA_plot_altair(plotdata,ylim,xlim):
     
@@ -864,6 +921,8 @@ def full_pec_test_data_plot(plot_type,variable_type):
     xlim2 = []
     titl = []
     alt_data = pd.DataFrame()
+    user_download_data = {}
+    #user_download_data = pd.DataFrame()
     plotData =  []
 
     col_name =  plot_type
@@ -873,8 +932,14 @@ def full_pec_test_data_plot(plot_type,variable_type):
       
     #st.write(col_name)
     
-    try:
-         for  active_id in st.session_state.Active_CellIds:
+    if st.session_state.RealTime == False:
+        time_col = "Total Time (Seconds)"
+    else:
+        time_col = "Real Time"
+        
+    
+    #try:
+    for  active_id in st.session_state.Active_CellIds:
                 #st.write(count,"  is:", active_id)
                 #count =  count+1
                                #st.write(active_id)        
@@ -887,7 +952,7 @@ def full_pec_test_data_plot(plot_type,variable_type):
                    #if plot_type in col_name:
 
                                cellid_temp = "Cell ID"  # First cell data
-                               time_col = "Total Time (Seconds)"
+                               
                                ylabel = col_name
 
                                test_value = item.loc[item[cellid_temp]==active_id,col_name]
@@ -911,12 +976,27 @@ def full_pec_test_data_plot(plot_type,variable_type):
                                      if len(plot_type) == 1:
                                         
                                         
-                                         temp_alt = pd.DataFrame({"Total Time (s)": time_value,  # Some issues here becuase test_value is not a list- Need to sort this out
+                                         temp_alt = pd.DataFrame({time_col: time_value,  # Some issues here becuase test_value is not a list- Need to sort this out
                                                              ylabel: test_value,
                                                              "Cell Id":full_id,
                                                              })
+                                         
+                                         
+                                         
 
                                          alt_data = pd.concat([alt_data, temp_alt], axis = 0)  # pandas version 2.0 and above deprecated append() function
+                                                                                
+                                         
+                                         
+                                         user_download_data.update({time_col + active_id: plot_val[:,0]})
+                                         user_download_data.update({ylabel+active_id: plot_val[:,1]})
+                                         
+                                         #user_download_data = pd.DataFrame(user_download_data)
+                                         #st.write(user_download_data)
+                                         
+                                        
+                                         
+                                         
                                      
                                          val = float(test_value.max())
                                      
@@ -937,31 +1017,42 @@ def full_pec_test_data_plot(plot_type,variable_type):
                                
                                      testname = st.session_state.FileName[file_num].split(".csv")
                                      titl.append(testname[0] +"," + " Cell id: " + active_id)
+                                     
                            #except:
                                #pass
-    except:
-          pass
+    #except:
+          #pass
 
 
-    xlabel = "RunTime (seconds)"  
+    xlabel = time_col 
     #st.write(ylim1)
+    
     if len(plot_type) == 1:
-       ylim1 = np.min(ylim1)
-       ylim2 = np.max(ylim2)
-       ylim1 = ylim1 - (ylim1 *0.02)
-       ylim2 = ylim2 + (ylim2 *0.02)
-       ylim = [ylim1,ylim2]
+        
+        return_data = pd.DataFrame(plotData, columns = ["Cell Id",ylabel])
+        return_data.index +=1   # Start numbering index from 1
+        return_data.index.rename('Number', inplace=True)
+        xlim = []
+        ylim = []
+        
+     
+        if st.session_state.RealTime == False:
        
-       xlim1 = np.min(xlim1)
-       xlim2 = np.max(xlim2)
-       xlim1 = xlim1 - (xlim1 *0.02)
-       xlim2 = xlim2 + (xlim2 *0.02)
-       xlim = [xlim1,xlim2]
+            ylim1 = np.min(ylim1)
+            ylim2 = np.max(ylim2)
+            ylim1 = ylim1 - (ylim1 *0.02)
+            ylim2 = ylim2 + (ylim2 *0.02)
+            ylim = [ylim1,ylim2]
        
-       return_data = pd.DataFrame(plotData, columns = ["Cell Id",ylabel])
-       return_data.index +=1   # Start numbering index from 1
-       return_data.index.rename('Number', inplace=True)
-       #st.write("Here")
+            xlim1 = np.min(xlim1)
+            xlim2 = np.max(xlim2)
+            xlim1 = xlim1 - (xlim1 *0.02)
+            xlim2 = xlim2 + (xlim2 *0.02)
+            xlim = [xlim1,xlim2]
+       
+       
+       
+       
       
     else:
         xlim = []
@@ -981,11 +1072,27 @@ def full_pec_test_data_plot(plot_type,variable_type):
    
     st.session_state.Current_plot_full_test_ylim = ylim
     st.session_state.Current_plot_full_test_xlim = xlim
-    #plot(plotdata,ylim,xlim,xlabel,ylabel,titl)
+    
+    # The next line of code is from stackoverflow. Helps to equal lengths of arrays in a dictionary to be converted to dataframe
+    
+    user_download_data = pd.DataFrame({ key:pd.Series(value) for key, value in user_download_data.items() })  
+   
+    st.session_state.User_Download_Data = user_download_data
+    
+
+
     if variable_type == "Primary variable":  # Some variables such as coulombic efficiency needs be to reprocssed
-       plot(plotdata)
-       if  st.session_state.Interactive_Plot == True:
-           plot_altair(alt_data,ylim,xlim)
+      if time_col == "Real Time":
+          x = alt_data["Real Time"]
+          x = pd.to_datetime(x)
+          alt_data["Real Time"] = x
+          plot_altair(alt_data,ylim,xlim)
+      else:
+           plot(plotdata)
+           if  st.session_state.Interactive_Plot == True:
+                 plot_altair(alt_data,ylim,xlim)
+           
+           
     else:
        pass
   
@@ -1892,6 +1999,7 @@ def BioLogic_Step_Plot(StepNumber,count,state,plot_type_x,plot_type_y,variable_t
 
 
 
+
 @st.cache_data 
 def DVA_SG(currentData,cell_ids, plot_type_x, plot_type_y,align_state,smooth_win_value,xlim_value,ylim_value):
     plotdata = []
@@ -2303,8 +2411,8 @@ def Import_Data(file,cycler,merge_data):
                         ReadData = ReadData.drop(columns =[item]) 
                     elif 'Load' in item:
                         ReadData = ReadData.drop(columns =[item]) 
-                    elif 'Real' in item:
-                        ReadData = ReadData.drop(columns =[item]) 
+                    #elif 'Real' in item:
+                        #ReadData = ReadData.drop(columns =[item]) 
                     elif 'Cycle Charge Time' in item:
                         ReadData = ReadData.drop(columns =[item])
                     elif 'Cycle Discharge Time' in item:
@@ -3293,37 +3401,47 @@ elif st.session_state.Cycler_Name == "PEC":
         
         tip = "Checking the box will include interactive plots"
         interactive_plot = form.checkbox("Include interactive plot", value = False, help = tip)
+        realTime_plot = form.checkbox("Use real time", value = False, help = tip)
         
         
     
         submit = form.form_submit_button('Plot')
     
     if submit:
+        
         if  interactive_plot == True:
             st.session_state.Interactive_Plot = True
         else:
             st.session_state.Interactive_Plot = False
-        if plot_type == "Coulombic Efficiency":
-            
-            formation_CE(counts,steps)
+        
+        if realTime_plot == True:
+            st.session_state.RealTime = True
         else:
-            if len (plot_type)>1: 
+            
+           st.session_state.RealTime = False
+        
+        
+    
+        if len (plot_type)>1: 
                 plot_val =  stack_plot(plot_type)
                
-            else:
-                plot_val = full_pec_test_data_plot(plot_type,"Primary variable")
+        else:
+                if plot_type[0] == "Coulombic Efficiency":
+                    formation_CE(counts,steps)
+                else:
+                    plot_val = full_pec_test_data_plot(plot_type,"Primary variable")
+                
+                if "Capacity (Ah)" in plot_type[0]:
+                  
+                     st.write(plot_val)   
+              
+             
+              
                 
             
-        if "Capacity" in plot_type:
-            st.write(plot_val)
+      
       
         #add another input box to allow multiple stack/layered plots
-
-
-
-
-
-
 
 
 
@@ -3717,7 +3835,7 @@ else:
                   user_dcir_data.index +=1   # Start numbering index from 1
                   num = user_dcir_data.index  
                   
-                  source_dcir = pd.DataFrame({"Number": num, "DCIR":dcir ,"Cell Id": temp_id})
+                  source_dcir = pd.DataFrame({"Cell Number": num, "DCIR (mΩ)":dcir ,"Cell Id": temp_id})
                    
                   meanDCIR= np.mean(dcir)
                   std_dcir = np.std(dcir)
@@ -3729,15 +3847,27 @@ else:
     
                   
                   c_dcir = alt.Chart(source_dcir).mark_circle(size=120).encode(
-                        x="Number",
-                        y="DCIR",
+                        x="Cell Number",
+                        y="DCIR (mΩ)",
                         color="Cell Id",
-                        tooltip=['Cell Id',"DCIR"]
-                         ).properties(width = 800, height = 300).interactive()
+                        tooltip=['Cell Id',"DCIR (mΩ)"]
+                         ).properties(width = 1200, height = 600).interactive()
                   #cola,colb,colc  = st.columns([0.5,0.5,0.5])
                   #with colb: 
                     #st.subheader("Interative plot")
                   st.write(c_dcir)
+                 
+                  # Bar plots
+                  bar_width = 50
+                  b = alt.Chart(source_dcir).mark_bar(size = bar_width).encode(
+                        # alt.Y(cols[1]).scale(zero=False),
+                        # x=cols[0],
+                         x="Cell Number",
+                         y="DCIR (mΩ)",
+                         color="Cell Id",
+                         tooltip=['Cell Id',"DCIR (mΩ)"]
+                          ).properties(width =1200, height = 600).interactive()
+                  st.write(b)
                     
                   # fig,ax = plt.subplots(1,1)
                   # ax.scatter(num,CE)
@@ -4819,12 +4949,6 @@ else:
     # A button to export some user selected variables
     #
 
-""" 
-
-
-This app is in a trial stage. Please report any bugs/errors to:
-Kenneth.Nwanoro@UKBIC.couk
-"""
 
 
 #st.image("Discharge_and_Charge_Process_of_a_Conventional_Lithium_Ion_Battery_Cell.gif")   
